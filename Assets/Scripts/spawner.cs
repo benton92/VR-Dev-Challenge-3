@@ -30,6 +30,8 @@ public class Spawner : MonoBehaviour
 
 	// internal state
 	private Coroutine spawnRoutine;
+	// simple incremental counter used to give each spawned instance a unique name
+	private int spawnCounter = 0;
 
 	private void Start()
 	{
@@ -100,8 +102,13 @@ public class Spawner : MonoBehaviour
 
 		Transform point = spawnPoint != null ? spawnPoint : transform;
 
-		// Instantiate at point position/rotation. Do not parent by default to avoid unexpected transforms.
-		Instantiate(prefab, point.position, point.rotation);
+		GameObject go = Instantiate(prefab, point.position, point.rotation) as GameObject;
+		if (go != null)
+		{
+			spawnCounter++;
+			// name like "Skeleton #1" (avoids the default "(Clone)" suffix)
+			go.name = string.Format("{0} #{1}", prefab.name, spawnCounter);
+		}
 	}
 }
 

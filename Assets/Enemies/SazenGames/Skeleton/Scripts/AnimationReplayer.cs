@@ -19,12 +19,25 @@ namespace SazenGames.Skeleton
         private Animator animator;
         private Vector3 initialPosition;
 
+        [Header("Disable Override")]
+        [Tooltip("If true the replayer will disable itself at runtime to avoid fighting other animation systems. Set false to allow replay behavior.")]
+        [SerializeField]
+        private bool disableAtRuntime = true;
+
         void Start()
         {
             animator = GetComponent<Animator>();
             if (animator == null)
             {
                 Debug.LogError("Animator component not found on this GameObject!");
+                return;
+            }
+
+            // If configured, disable this component immediately so it doesn't override animation driven by other scripts.
+            if (disableAtRuntime)
+            {
+                Debug.LogFormat(this, "AnimationReplayer: disabling on '{0}' to avoid animator conflicts. Set disableAtRuntime=false to re-enable.", gameObject.name);
+                enabled = false;
                 return;
             }
 
