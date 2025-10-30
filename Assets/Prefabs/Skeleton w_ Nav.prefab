@@ -623,6 +623,9 @@ MonoBehaviour:
   movementThreshold: 0.05
   arrivalBuffer: 0.15
   speedDampTime: 0.03
+  player: {fileID: 0}
+  hitRange: 2
+  hitTiming: 0.4
 --- !u!1 &1657318353952866710
 GameObject:
   m_ObjectHideFlags: 0
