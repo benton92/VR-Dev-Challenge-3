@@ -4,6 +4,7 @@ using TMPro;
 public class DualGestureDetector : MonoBehaviour
 {
     [SerializeField] private TextMeshPro statusText;
+    [SerializeField] private AudioSource audioSource;
 
     public bool leftHandGestureDetected = false;
     public bool rightHandGestureDetected = false;
@@ -15,14 +16,24 @@ public class DualGestureDetector : MonoBehaviour
     {
         if (statusText == null) return;
 
-        // Only update text when BOTH gestures are detected
+        // Only update text and play audio when BOTH gestures are detected
         if (leftHandGestureDetected && rightHandGestureDetected)
         {
             statusText.text = bothGesturesMessage;
+
+            if (audioSource != null && !audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
         }
         else
         {
             statusText.text = defaultMessage;
+
+            if (audioSource != null && audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
         }
     }
 
