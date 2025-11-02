@@ -7241,8 +7241,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 12
+  m_fontSizeBase: 12
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -7630,23 +7630,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6262380478691653241, guid: 4fd205bdcad3f9d4896decfba86809f5, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.5
+      value: 0.18301274
       objectReference: {fileID: 0}
     - target: {fileID: 6262380478691653241, guid: 4fd205bdcad3f9d4896decfba86809f5, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.5
+      value: 0.6830127
       objectReference: {fileID: 0}
     - target: {fileID: 6262380478691653241, guid: 4fd205bdcad3f9d4896decfba86809f5, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.5
+      value: -0.18301274
       objectReference: {fileID: 0}
     - target: {fileID: 6262380478691653241, guid: 4fd205bdcad3f9d4896decfba86809f5, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.5
+      value: 0.6830127
       objectReference: {fileID: 0}
     - target: {fileID: 6262380478691653241, guid: 4fd205bdcad3f9d4896decfba86809f5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 90
+      value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 6262380478691653241, guid: 4fd205bdcad3f9d4896decfba86809f5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -8179,7 +8179,7 @@ GameObject:
   - component: {fileID: 1267213994}
   - component: {fileID: 1267213993}
   m_Layer: 0
-  m_Name: FistBumpPoseLeft
+  m_Name: PalmSpreadPoseLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8337,8 +8337,8 @@ MonoBehaviour:
   _transformFeatureConfigs:
     _values:
     - _mode: 0
-      _feature: 2
-      _state: 6
+      _feature: 5
+      _state: 15
   _transformConfig:
     PositionOffset: {x: 0, y: 0, z: 0}
     RotationOffset: {x: 0, y: 0, z: 0}
@@ -8359,7 +8359,7 @@ MonoBehaviour:
   _hand: {fileID: 346936813}
   _fingerFeatureStateProvider: {fileID: 1353098230}
   _shapes:
-  - {fileID: 11400000, guid: 55734ff6ac9c48443ab37831fdd69d7b, type: 2}
+  - {fileID: 11400000, guid: e2e8bc73344f503479674350dc5e21cf, type: 2}
 --- !u!1 &1291553964
 GameObject:
   m_ObjectHideFlags: 0
