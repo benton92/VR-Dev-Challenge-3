@@ -12,6 +12,8 @@ public class playerHealth : MonoBehaviour
     public float regenerationDelay = 5f;
     [Tooltip("Range within which enemy hits can damage the player")]
     public float hitDetectionRange = 2f; // You can adjust this value
+    [Tooltip("Invincibility time in seconds after taking damage")]
+    public float invincibilityDuration = 0.5f;
 
     [Header("Events")]
     public UnityEvent onDamaged;
@@ -21,11 +23,14 @@ public class playerHealth : MonoBehaviour
     private int currentHealth;
     private float lastHitTime;
     private bool isDead = false;
+    private float lastDamageTime = -999f; // Track when we last took damage for invincibility frames
 
     void Start()
     {
         currentHealth = maxHealth;
         lastHitTime = -regenerationDelay; // Allow immediate regeneration if needed at start
+        Debug.LogFormat(this, "<color=blue>playerHealth INITIALIZED on {0} - Max Health: {1}, Regen Delay: {2}s</color>", 
+            gameObject.name, maxHealth, regenerationDelay);
     }
 
     void Update()
@@ -41,10 +46,22 @@ public class playerHealth : MonoBehaviour
 
     public void TakeDamage()
     {
+        Debug.LogFormat(this, "<color=magenta>TakeDamage() called on {0}. isDead={1}, currentHealth={2}</color>", 
+            gameObject.name, isDead, currentHealth);
+        
         if (isDead) return;
+
+        // Check invincibility frames
+        if (Time.time < lastDamageTime + invincibilityDuration)
+        {
+            Debug.LogFormat(this, "<color=yellow>INVINCIBLE! Damage blocked. Time remaining: {0:F2}s</color>", 
+                (lastDamageTime + invincibilityDuration) - Time.time);
+            return;
+        }
 
         currentHealth--;
         lastHitTime = Time.time;
+        lastDamageTime = Time.time;
         
         onDamaged?.Invoke();
         

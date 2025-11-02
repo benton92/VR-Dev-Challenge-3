@@ -41,6 +41,9 @@ public class enemyAnimation : MonoBehaviour
     
     [Tooltip("Time in seconds before the hit connects in the animation (when to check for damage)")]
     public float hitTiming = 0.8f;
+    
+    [Tooltip("Minimum time in seconds between attacks")]
+    public float attackCooldown = 2.5f;
 
     // internals
     private Vector3 lastPosition;
@@ -49,6 +52,8 @@ public class enemyAnimation : MonoBehaviour
     private int isHittingParamHash = -1;
     private bool canHit = false;
     private playerHealth playerHealthScript;
+    private bool isCurrentlyAttacking = false;
+    private float lastAttackTime = -999f; // Start with a large negative value so first attack can happen immediately
 
     private void Awake()
     {
@@ -152,14 +157,19 @@ public class enemyAnimation : MonoBehaviour
         if (agent != null && agent.hasPath)
         {
             float stopDist = agent.stoppingDistance + arrivalBuffer;
-            if (agent.remainingDistance <= stopDist && !moving)
+            if (agent.remainingDistance <= stopDist && !moving && !isCurrentlyAttacking)
             {
-                // We've stopped near the target - check if we can hit
-                if (isHittingParamHash != -1 && animator.GetCurrentAnimatorStateInfo(0).IsName(idleState))
+                // Check if enough time has passed since last attack
+                if (Time.time >= lastAttackTime + attackCooldown)
                 {
-                    animator.SetBool(isHittingParamHash, true);
-                    // Schedule turning off the hit animation
-                    StartCoroutine(ResetHitAnimation());
+                    // We've stopped near the target - check if we can hit
+                    if (isHittingParamHash != -1 && animator.GetCurrentAnimatorStateInfo(0).IsName(idleState))
+                    {
+                        animator.SetBool(isHittingParamHash, true);
+                        lastAttackTime = Time.time;
+                        // Schedule turning off the hit animation
+                        StartCoroutine(ResetHitAnimation());
+                    }
                 }
             }
         }
@@ -225,6 +235,7 @@ public class enemyAnimation : MonoBehaviour
 
     private IEnumerator ResetHitAnimation()
     {
+        isCurrentlyAttacking = true;
         Debug.LogFormat(this, "<color=orange>Skeleton [{0}] started hit animation</color>", name);
         
         // Wait for a reasonable time for the hit animation to play (adjust based on your animation length)
@@ -260,5 +271,7 @@ public class enemyAnimation : MonoBehaviour
             animator.SetBool(isHittingParamHash, false);
             Debug.LogFormat(this, "<color=orange>Skeleton [{0}] finished hit animation</color>", name);
         }
+        
+        isCurrentlyAttacking = false;
     }
 }
