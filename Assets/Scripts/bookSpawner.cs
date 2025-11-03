@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class bookSpawner : MonoBehaviour
 {
-
     public GameObject spellBook;
     public GameObject smallImplosion;
     public GameObject smallExplosion;
+    [SerializeField] private float bookXRotation = 0f;
+
     public bool handsInPosition;
     public bool bookIsSummonable;
     public bool bookIsDesummonable;
@@ -15,7 +16,6 @@ public class bookSpawner : MonoBehaviour
 
     private GameObject SpellBookClone;
 
-    // Start is called before the first frame update
     void Start()
     {
         handsInPosition = false;
@@ -26,17 +26,17 @@ public class bookSpawner : MonoBehaviour
         Invoke(nameof(despawnBook), 4f);
     }
 
-    // Update is called once per frame
     void Update()
     {
-
     }
 
     public void handsSetTrue()
     {
         handsInPosition = true;
         if (bookIsSummonable)
-        { spawnBook(); }
+        {
+            spawnBook();
+        }
     }
 
     public void handsSetFalse()
@@ -50,7 +50,6 @@ public class bookSpawner : MonoBehaviour
 
     public void spawnBook()
     {
-        //if hands are still in position for book spawn book with a flash
         bookIsSummonable = false;
         GameObject ExClone = Instantiate(smallExplosion, transform.position, transform.rotation);
         Destroy(ExClone, 5f);
@@ -60,7 +59,10 @@ public class bookSpawner : MonoBehaviour
     IEnumerator spawnBook2()
     {
         yield return new WaitForSeconds(0.5f);
-        SpellBookClone = Instantiate(spellBook, transform.position, transform.rotation);
+
+        Quaternion bookRotation = Quaternion.Euler(bookXRotation, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+        SpellBookClone = Instantiate(spellBook, transform.position, bookRotation);
+
         bookIsDesummonable = true;
         bookIsSummonded = true;
     }

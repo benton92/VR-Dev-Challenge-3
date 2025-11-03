@@ -1,34 +1,42 @@
 using UnityEngine;
 using TMPro;
-
 public class DualGestureDetector : MonoBehaviour
 {
-    [SerializeField] private TextMeshPro statusText;
     [SerializeField] private AudioSource audioSource;
+    [SerializeField] private bookSpawner bookSpawnerScript; // Add reference to book spawner
 
     public bool leftHandGestureDetected = false;
     public bool rightHandGestureDetected = false;
 
-    [SerializeField] private string bothGesturesMessage = "Both Gestures Detected!";
-    [SerializeField] private string defaultMessage = "Waiting for gestures...";
+    private bool gesturesWereDetected = false; // Track previous state
 
     void Update()
     {
-        if (statusText == null) return;
-
         // Only update text and play audio when BOTH gestures are detected
         if (leftHandGestureDetected && rightHandGestureDetected)
         {
-            statusText.text = bothGesturesMessage;
-
             if (audioSource != null && !audioSource.isPlaying)
             {
                 audioSource.Play();
             }
+
+            // Trigger book spawn only once when gestures first detected
+            if (!gesturesWereDetected && bookSpawnerScript != null)
+            {
+                bookSpawnerScript.handsSetTrue();
+                gesturesWereDetected = true;
+            }
         }
         else
         {
-            statusText.text = defaultMessage;
+            audioSource.Stop();
+
+            // Call handsSetFalse when gestures are no longer detected
+            if (gesturesWereDetected && bookSpawnerScript != null)
+            {
+                bookSpawnerScript.handsSetFalse();
+                gesturesWereDetected = false;
+            }
         }
     }
 
