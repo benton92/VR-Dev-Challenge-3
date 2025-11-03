@@ -29,11 +29,6 @@ public class DualGestureDetector : MonoBehaviour
         else
         {
             statusText.text = defaultMessage;
-
-            if (audioSource != null && audioSource.isPlaying)
-            {
-                audioSource.Stop();
-            }
         }
     }
 
