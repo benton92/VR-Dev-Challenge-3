@@ -8,10 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 55daccc09a3b69647bbab145b54a3ab3
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/GestureTestScene.unity
     guid: 531968f3117c86e448313e12d88ad105
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Dmg Test Scene.unity
     guid: de4a71665beba484dbe87e66de2402c1
   m_configObjects:
