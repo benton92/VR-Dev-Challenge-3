@@ -109,10 +109,8 @@ public class playerHealth : MonoBehaviour
 
     public void TakeDamage()
     {
-        Debug.LogFormat(this, "<color=magenta>TakeDamage() called on {0}. isDead={1}, currentHealth={2}</color>",
-            gameObject.name, isDead, currentHealth);
-
-        if (isDead) return;
+        Debug.LogFormat(this, "<color=magenta>TakeDamage() called on {0}. currentHealth={1}</color>",
+            gameObject.name, currentHealth);
 
         // Check invincibility frames
         if (Time.time < lastDamageTime + invincibilityDuration)
