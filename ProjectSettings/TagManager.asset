@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Anchor
+  - FireSpellCollider
+  - LightningSpellCollider
   layers:
   - Default
   - TransparentFX
