@@ -11,7 +11,7 @@ Library: C:\GIT_Projects\prj1\VR-Dev-Challenge-3\Temp\BurstOutput\tempburstlibs\
 --float-mode=Fast
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\GIT_Projects\prj1\VR-Dev-Challenge-3\Temp\Burst
---key-folder=C:/Program Files/Unity/Hub/Editor/2022.3.44f1-x86_64/Editor/Data/PlaybackEngines/AndroidPlayer
+--key-folder=C:/Program Files/Unity/Hub/Editor/2022.3.44f1/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=C:\GIT_Projects\prj1\VR-Dev-Challenge-3\Library\Burst
 --output=C:\GIT_Projects\prj1\VR-Dev-Challenge-3\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
@@ -28,7 +28,7 @@ Library: C:\GIT_Projects\prj1\VR-Dev-Challenge-3\Temp\BurstOutput\tempburstlibs\
 --target-framework=NetFramework
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\GIT_Projects\prj1\VR-Dev-Challenge-3\Temp\Burst
---key-folder=C:/Program Files/Unity/Hub/Editor/2022.3.44f1-x86_64/Editor/Data/PlaybackEngines/AndroidPlayer
+--key-folder=C:/Program Files/Unity/Hub/Editor/2022.3.44f1/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=C:\GIT_Projects\prj1\VR-Dev-Challenge-3\Library\Burst
 --output=C:\GIT_Projects\prj1\VR-Dev-Challenge-3\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
