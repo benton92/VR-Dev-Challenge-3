@@ -3090,7 +3090,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialSceneName: Tutorial Scene
   bridgeSceneName: bridge
-  tutorialDuration: 120
+  tutorialDuration: 90
 --- !u!4 &144152463
 Transform:
   m_ObjectHideFlags: 0
@@ -10810,7 +10810,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 359103919}
+<<<<<<< Updated upstream
   bookSpawnerScript: {fileID: 1507810440}
+=======
+<<<<<<< HEAD
+  bookSpawnerScript: {fileID: 0}
+=======
+  bookSpawnerScript: {fileID: 1507810440}
+>>>>>>> 4f5de287cca39fde07d422351dbf5024c367b162
+>>>>>>> Stashed changes
   leftHandGestureDetected: 0
   rightHandGestureDetected: 0
 --- !u!1001 &369396123
