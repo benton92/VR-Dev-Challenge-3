@@ -45,6 +45,22 @@ public class enemyAnimation : MonoBehaviour
     [Tooltip("Minimum time in seconds between attacks")]
     public float attackCooldown = 2.5f;
 
+    [Header("Death Settings")]
+    [Tooltip("Play this Animator state on death (ignored if 'Use Death Trigger' is enabled and the trigger exists)")]
+    public string deathState = "Death";
+    [Tooltip("If enabled and the Animator has this trigger parameter, it will be set on death")] 
+    public bool useDeathTrigger = false;
+    [Tooltip("Animator Trigger parameter name to fire on death")] 
+    public string deathTrigger = "Die";
+    [Tooltip("How long to wait before despawning after triggering death (seconds)")]
+    public float deathAnimationDuration = 2.0f;
+    [Tooltip("Destroy the GameObject after death animation completes (otherwise SetActive(false))")] 
+    public bool destroyOnDeath = true;
+    [Tooltip("When true, fade the enemy's renderers out instead of popping instantly on despawn")] 
+    public bool fadeOutOnDeath = true;
+    [Tooltip("Seconds to fade visuals to invisible before despawn")] 
+    public float fadeOutDuration = 2.0f;
+
     // internals
     private Vector3 lastPosition;
     private int isMovingParamHash = -1;
@@ -54,6 +70,10 @@ public class enemyAnimation : MonoBehaviour
     private playerHealth playerHealthScript;
     private bool isCurrentlyAttacking = false;
     private float lastAttackTime = -999f; // Start with a large negative value so first attack can happen immediately
+    private bool isDead = false;
+    private int deathTriggerHash = -1;
+    private float spawnTime = 0f;
+    private const float SPAWN_GRACE_PERIOD = 1.0f; // Ignore spell hits for this many seconds after spawn
 
     private void Awake()
     {
@@ -103,10 +123,16 @@ public class enemyAnimation : MonoBehaviour
                 {
                     isHittingParamHash = Animator.StringToHash("isHitting");
                 }
+
+                if (useDeathTrigger && p.type == AnimatorControllerParameterType.Trigger && p.name == deathTrigger)
+                {
+                    deathTriggerHash = Animator.StringToHash(deathTrigger);
+                }
             }
         }
 
         lastPosition = transform.position;
+        spawnTime = Time.time; // Track when this enemy spawned
 
         // Debug: report which animator parameter we'll use so you can verify in Console
         if (animator != null)
@@ -122,6 +148,9 @@ public class enemyAnimation : MonoBehaviour
 
     private void Update()
     {
+        if (isDead)
+            return; // stop driving animations once dead
+
         float vel = 0f;
 
         if (agent != null)
@@ -235,6 +264,7 @@ public class enemyAnimation : MonoBehaviour
 
     private IEnumerator ResetHitAnimation()
     {
+        if (isDead) yield break;
         isCurrentlyAttacking = true;
         Debug.LogFormat(this, "<color=orange>Skeleton [{0}] started hit animation</color>", name);
         
@@ -273,5 +303,227 @@ public class enemyAnimation : MonoBehaviour
         }
         
         isCurrentlyAttacking = false;
+    }
+
+    // ---- Death handling on spell contact ----
+    private static readonly string[] KillColliderNames = { "LightningSpellCollider", "FireSpellCollider" };
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (isDead) return;
+        
+        // Grace period to prevent instant death at spawn
+        if (Time.time < spawnTime + SPAWN_GRACE_PERIOD)
+        {
+            Debug.LogFormat(this, "<color=yellow>enemyAnimation[{0}]: Ignoring trigger '{1}' during spawn grace period ({2:F2}s remaining)</color>", 
+                name, other.name, (spawnTime + SPAWN_GRACE_PERIOD) - Time.time);
+            return;
+        }
+        
+        if (IsSpellCollider(other.transform))
+        {
+            Debug.LogFormat(this, "<color=purple>enemyAnimation[{0}]: Hit by spell trigger '{1}'. Dying...</color>", name, other.name);
+            StartCoroutine(HandleDeath());
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (isDead) return;
+        
+        // Grace period to prevent instant death at spawn
+        if (Time.time < spawnTime + SPAWN_GRACE_PERIOD)
+        {
+            Debug.LogFormat(this, "<color=yellow>enemyAnimation[{0}]: Ignoring collision '{1}' during spawn grace period ({2:F2}s remaining)</color>", 
+                name, collision.gameObject.name, (spawnTime + SPAWN_GRACE_PERIOD) - Time.time);
+            return;
+        }
+        
+        if (IsSpellCollider(collision.transform))
+        {
+            Debug.LogFormat(this, "<color=purple>enemyAnimation[{0}]: Hit by spell collision '{1}'. Dying...</color>", name, collision.gameObject.name);
+            StartCoroutine(HandleDeath());
+        }
+    }
+
+    private bool IsSpellCollider(Transform t)
+    {
+        // Walk up the hierarchy to catch child colliders
+        Transform cur = t;
+        int depth = 0;
+        while (cur != null && depth < 5)
+        {
+            foreach (var n in KillColliderNames)
+            {
+                if (cur.name == n)
+                    return true;
+            }
+            cur = cur.parent;
+            depth++;
+        }
+        return false;
+    }
+
+    private IEnumerator HandleDeath()
+    {
+        if (isDead) yield break;
+        isDead = true;
+
+        // stop navigation and combat
+        if (agent != null)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+        }
+        isCurrentlyAttacking = false;
+
+        // reset combat animator params
+        if (animator != null)
+        {
+            if (isHittingParamHash != -1) animator.SetBool(isHittingParamHash, false);
+            if (speedParamHash != -1) animator.SetFloat(speedParamHash, 0f);
+
+            // trigger or play death
+            bool fired = false;
+            if (useDeathTrigger && deathTriggerHash != -1)
+            {
+                animator.ResetTrigger(deathTriggerHash);
+                animator.SetTrigger(deathTriggerHash);
+                fired = true;
+                Debug.LogFormat(this, "enemyAnimation[{0}]: Set death trigger '{1}'", name, deathTrigger);
+            }
+            if (!fired && !string.IsNullOrEmpty(deathState))
+            {
+                animator.Play(deathState, 0, 0f);
+                Debug.LogFormat(this, "enemyAnimation[{0}]: Playing death state '{1}'", name, deathState);
+            }
+        }
+
+        // disable colliders so we don't get re-hit while dying
+        var cols = GetComponentsInChildren<Collider>(true);
+        foreach (var c in cols)
+        {
+            c.enabled = false;
+        }
+
+        // wait for animation duration
+        yield return new WaitForSeconds(Mathf.Max(0f, deathAnimationDuration));
+
+        if (fadeOutOnDeath && fadeOutDuration > 0f)
+        {
+            yield return StartCoroutine(FadeOutAndDespawn());
+        }
+        else
+        {
+            // instant despawn
+            if (destroyOnDeath)
+                Destroy(gameObject);
+            else
+                gameObject.SetActive(false);
+        }
+    }
+
+    // --- Visual fade-out helpers ---
+    private IEnumerator FadeOutAndDespawn()
+    {
+        // Collect all renderers and create material instances
+        var renderers = GetComponentsInChildren<Renderer>(true);
+        var mats = new List<Material>();
+        foreach (var r in renderers)
+        {
+            // renderer.materials returns instances (safe to edit per-object)
+            var rms = r.materials;
+            for (int i = 0; i < rms.Length; i++)
+            {
+                var m = rms[i];
+                if (m != null && !mats.Contains(m))
+                {
+                    PrepareMaterialForFade(m);
+                    mats.Add(m);
+                }
+            }
+        }
+
+        // Capture starting alpha per material
+        var startA = new float[mats.Count];
+        for (int i = 0; i < mats.Count; i++)
+        {
+            startA[i] = GetMaterialAlpha(mats[i]);
+        }
+
+        float t = 0f;
+        while (t < fadeOutDuration)
+        {
+            t += Time.deltaTime;
+            float k = Mathf.Clamp01(t / fadeOutDuration);
+            for (int i = 0; i < mats.Count; i++)
+            {
+                float a = Mathf.Lerp(startA[i], 0f, k);
+                SetMaterialAlpha(mats[i], a);
+            }
+            yield return null;
+        }
+
+        // Ensure fully invisible
+        for (int i = 0; i < mats.Count; i++)
+        {
+            SetMaterialAlpha(mats[i], 0f);
+        }
+
+        // Final despawn
+        if (destroyOnDeath)
+            Destroy(gameObject);
+        else
+            gameObject.SetActive(false);
+    }
+
+    private void PrepareMaterialForFade(Material m)
+    {
+        // URP Lit: _Surface = 0(Opaque), 1(Transparent); color is _BaseColor
+        if (m.HasProperty("_Surface"))
+        {
+            m.SetFloat("_Surface", 1f); // Transparent
+            // For URP we might also need to set render queue
+            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            return;
+        }
+
+        // Built-in Standard shader fallbacks
+        if (m.HasProperty("_Mode"))
+        {
+            // 0 Opaque, 1 Cutout, 2 Fade, 3 Transparent
+            m.SetFloat("_Mode", 2f); // Fade
+        }
+        // Common blending setup for fade
+        m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        m.SetInt("_ZWrite", 0);
+        m.DisableKeyword("_ALPHATEST_ON");
+        m.EnableKeyword("_ALPHABLEND_ON");
+        m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+    }
+
+    private float GetMaterialAlpha(Material m)
+    {
+        if (m.HasProperty("_BaseColor"))
+            return m.GetColor("_BaseColor").a;
+        if (m.HasProperty("_Color"))
+            return m.GetColor("_Color").a;
+        return 1f;
+    }
+
+    private void SetMaterialAlpha(Material m, float a)
+    {
+        a = Mathf.Clamp01(a);
+        if (m.HasProperty("_BaseColor"))
+        {
+            var c = m.GetColor("_BaseColor"); c.a = a; m.SetColor("_BaseColor", c);
+            return;
+        }
+        if (m.HasProperty("_Color"))
+        {
+            var c = m.GetColor("_Color"); c.a = a; m.SetColor("_Color", c);
+        }
     }
 }
