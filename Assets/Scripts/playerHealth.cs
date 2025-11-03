@@ -25,8 +25,8 @@ public class playerHealth : MonoBehaviour
     public bool autoFindOverlay = true;
     [Tooltip("Max alpha when at 1 HP (low health)")]
     [Range(0f, 1f)] public float lowHealthMaxAlpha = 0.7f;
-    [Tooltip("Alpha to apply on death")]
-    [Range(0f, 1f)] public float deathAlpha = 0.9f;
+    // [Tooltip("Alpha to apply on death")]
+    // [Range(0f, 1f)] public float deathAlpha = 0.9f;
     [Tooltip("How fast the overlay fades toward its target alpha (per second)")]
     public float overlayFadeSpeed = 5f;
 
@@ -38,12 +38,11 @@ public class playerHealth : MonoBehaviour
 
     [Header("Events")]
     public UnityEvent onDamaged;
-    public UnityEvent onDeath;
     public UnityEvent onHealthRegained;
 
     private int currentHealth;
     private float lastHitTime;
-    private bool isDead = false;
+    // private bool isDead = false;
     private float lastDamageTime = -999f; // Track when we last took damage for invincibility frames
     private Coroutine overlayFadeRoutine;
     private bool overlayFadeActive = false;
@@ -81,11 +80,7 @@ public class playerHealth : MonoBehaviour
 
     void Update()
     {
-        if (isDead)
-        {
-            // Keep death alpha; no regen while dead
-            return;
-        }
+        // ...existing code...
 
         // Check for health regeneration
         if (currentHealth < maxHealth && Time.time >= lastHitTime + regenerationDelay)
@@ -133,10 +128,7 @@ public class playerHealth : MonoBehaviour
 
         onDamaged?.Invoke();
 
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+        // ...existing code...
 
         // Red text for damage
         Debug.LogFormat(this, "<color=red>DAMAGE TAKEN! Player Health: {0}/{1}</color>", currentHealth, maxHealth);
@@ -172,21 +164,7 @@ public class playerHealth : MonoBehaviour
         // Otherwise, Update() will fade overlay toward 0 using overlayFadeSpeed
     }
 
-    private void Die()
-    {
-        isDead = true;
-        onDeath?.Invoke();
-        Debug.LogFormat(this, "<color=yellow>PLAYER DIED!</color>");
-
-        if (vignetteCanvasGroup != null)
-        {
-            vignetteCanvasGroup.alpha = deathAlpha;
-        }
-        else if (overlayImage != null)
-        {
-            var c = overlayImage.color; c.a = deathAlpha; overlayImage.color = c;
-        }
-    }
+    // ...existing code...
 
     // Call this from enemyAnimation when their hit animation finishes
     public bool IsInHitRange(Vector3 enemyPosition)
@@ -198,8 +176,8 @@ public class playerHealth : MonoBehaviour
     // Computes desired overlay alpha based on current health (higher alpha at lower health)
     private float ComputeTargetOverlayAlpha()
     {
-        if (isDead) return deathAlpha;
-        if (currentHealth >= maxHealth) return 0f;
+    // No death alpha; just fade based on health
+    if (currentHealth >= maxHealth) return 0f;
 
         // Map missing health to alpha; with maxHealth=3:
         // 3 HP -> 0, 2 HP -> ~0.35 (if lowHealthMaxAlpha=0.7), 1 HP -> ~0.7
