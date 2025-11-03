@@ -5,20 +5,19 @@ TagManager:
   serializedVersion: 2
   tags:
   - Anchor
-  - CinemachineTarget
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - HiddenMesh
+  - 
   - Water
   - UI
   - 
   - 
+  - Suimono_Water
+  - Suimono_Depth
+  - Suimono_Screen
   - 
-  - 
-  - Character
-  - MirroredCharacter
   - 
   - 
   - 
